@@ -3,8 +3,6 @@ package io.github.kevinah95.l08_activity.behaviours
 import io.github.kevinah95.l08_activity.core.Behaviour
 import io.github.kevinah95.l08_activity.core.Game
 import io.github.kevinah95.l08_activity.core.GameObject
-import kotlin.math.PI
-import kotlin.math.sin
 
 /**
  * Comportamiento de Marcha:
@@ -17,22 +15,11 @@ import kotlin.math.sin
  */
 class March(gameObject: GameObject, var step: Double) : Behaviour(gameObject) {
     override fun onFrame(dt: Double) {
-        if (gameObject.hop > 0) {
-            gameObject.hop = (gameObject.hop - (dt / 100.0)).coerceAtLeast(0.0)
-        }
+        // TODO: Reducir suavemente gameObject.hop hacia 0
     }
 
     override fun onUpdate(): Boolean {
-        if (gameObject.y > 0) return false // No marcha si está en el aire
-
-        gameObject.x += step
-        gameObject.hop = 2.0
-
-        val game = gameObject.gameSession as? Game
-        val stageWidth = game?.stage?.width ?: 800.0
-        if ((step < 0 && gameObject.x < 0) || (step > 0 && gameObject.x > stageWidth)) {
-            gameObject.gameSession?.despawn(gameObject)
-        }
+        // TODO: Incrementar gameObject.x según step y asignar hop = 2.0
         return false
     }
 }
@@ -42,17 +29,13 @@ class March(gameObject: GameObject, var step: Double) : Behaviour(gameObject) {
  * Al chocar con un objetivo hostil, ambas unidades se infligen daño mutuo equivalente a su salud restante.
  *
  * TODO Paso 2.1:
- * - En `onCollision(target)`, obtiene la sesión de juego.
- * - Inflige daño al objetivo igual a la vida del atacante: `session.damage(target, dealDamage, gameObject)`.
- * - Inflige daño al atacante igual a la vida del objetivo: `session.damage(gameObject, takeDamage, target)`.
+ * - En `onCollision(target)`, obtiene la sesión de juego: val session = gameObject.gameSession as? Game ?: return
+ * - Inflige daño al objetivo igual a la vida del atacante: `session.damage(target, gameObject.hp, gameObject)`.
+ * - Inflige daño al atacante igual a la vida del objetivo: `session.damage(gameObject, target.hp, target)`.
  */
 class Attack(gameObject: GameObject) : Behaviour(gameObject) {
     override fun onCollision(target: GameObject) {
-        val dealDamage = gameObject.hp
-        val takeDamage = target.hp
-        val session = gameObject.gameSession as? Game ?: return
-        session.damage(target, dealDamage, gameObject)
-        session.damage(gameObject, takeDamage, target)
+        // TODO: Aplicar daño mutuo entre atacante y objetivo
     }
 }
 

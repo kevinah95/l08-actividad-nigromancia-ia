@@ -1,16 +1,13 @@
 name: Pruebas automatizadas (CI)
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
   test:
-    name: Ejecutar todas las pruebas unitarias
+    name: Ejecutar pruebas unitarias
     runs-on: ubuntu-latest
 
     steps:

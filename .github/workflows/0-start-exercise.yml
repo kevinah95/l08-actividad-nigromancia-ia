@@ -19,11 +19,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Crear label si no existe
+      - name: Crear labels base si no existen
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh label create "ejercicio" --color "0075ca" --description "Issue del ejercicio guiado" 2>/dev/null || true
+          gh label create "paso-1" --color "d93f0b" --description "Paso 1 activo" 2>/dev/null || true
+          gh label create "paso-2" --color "fbca04" --description "Paso 2 activo" 2>/dev/null || true
+          gh label create "paso-3" --color "0e8a16" --description "Paso 3 activo" 2>/dev/null || true
+          gh label create "paso-4" --color "1d76db" --description "Paso 4 activo" 2>/dev/null || true
+          gh label create "completado" --color "2ea44f" --description "Ejercicio completado" 2>/dev/null || true
 
       - name: Verificar si el issue ya existe
         id: check_issue
@@ -40,5 +45,5 @@ jobs:
         run: |
           gh issue create \
             --title "Práctica 08: Nigromancia y Comportamientos de IA — Ejercicio Paso a Paso" \
-            --label "ejercicio" \
+            --label "ejercicio,paso-1" \
             --body "$(cat .github/steps/1-step.md)"

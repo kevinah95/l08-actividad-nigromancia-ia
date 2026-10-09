@@ -19,32 +19,54 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Comprobar si el issue está en el Paso 2
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUMBER=$(gh issue list --label "ejercicio" --state open --json number --jq '.[0].number')
+          if [ -z "$ISSUE_NUMBER" ] || [ "$ISSUE_NUMBER" = "null" ]; then
+            echo "⏭️ No hay issue de ejercicio abierto. Omitiendo."
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! gh issue view "$ISSUE_NUMBER" --json labels --jq '.labels[].name' | grep -q "^paso-2$"; then
+            echo "⏭️ El issue no tiene la etiqueta 'paso-2'. Este paso no está activo."
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "active=true" >> "$GITHUB_OUTPUT"
+          echo "issue_number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
+
       - name: Setup Java
+        if: steps.gate.outputs.active == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
       - name: Ejecutar pruebas unitarias de Paso 2
-        id: check
+        if: steps.gate.outputs.active == 'true'
+        id: test
         run: |
           cd app
           chmod +x ./gradlew
           if ./gradlew :shared:jvmTest --tests "*Step2AttackDamageTest*" --no-daemon; then
-            echo "result=success" >> "$GITHUB_OUTPUT"
+            echo "passed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "⏭️ Paso 2 aún no completado o pruebas fallidas."
+            echo "❌ Las pruebas del Paso 2 aún no pasan."
+            echo "passed=false" >> "$GITHUB_OUTPUT"
+            exit 1
           fi
 
-      - name: Publicar Paso 3 en el issue
-        if: steps.check.outputs.result == 'success'
+      - name: Transicionar a Paso 3 en el issue
+        if: steps.gate.outputs.active == 'true' && steps.test.outputs.passed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_NUMBER=$(gh issue list --label "ejercicio" --state open --json number --jq '.[0].number')
-          if [ -z "$ISSUE_NUMBER" ]; then
-            echo "⏭️ No hay issue de ejercicio abierto — omitiendo comentario."
-            exit 0
-          fi
+          ISSUE_NUMBER="${{ steps.gate.outputs.issue_number }}"
+          gh issue edit "$ISSUE_NUMBER" --remove-label "paso-2" --add-label "paso-3"
           gh issue comment "$ISSUE_NUMBER" \
             --body "$(cat .github/steps/3-step.md)"

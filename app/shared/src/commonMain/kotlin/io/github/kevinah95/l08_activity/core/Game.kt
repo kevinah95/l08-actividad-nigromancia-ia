@@ -2,7 +2,6 @@ package io.github.kevinah95.l08_activity.core
 
 import io.github.kevinah95.l08_activity.entities.createCorpse
 import io.github.kevinah95.l08_activity.entities.createSkeleton
-import io.github.kevinah95.l08_activity.entities.createSpell
 import kotlin.math.abs
 
 data class Stage(
@@ -13,7 +12,7 @@ data class Stage(
 )
 
 data class AbilityState(
-    var cooldown: Double = 2000.0, // 2 segundos de tiempo de recarga
+    var cooldown: Double = 2000.0,
     var timer: Double = 2000.0
 )
 
@@ -40,7 +39,6 @@ class Game : GameSession {
     fun update(dtMs: Double) {
         ability.timer += dtMs
 
-        // Actualizar componentes y relojes de cada objeto
         for (obj in objects.toList()) {
             obj.update(dtMs)
         }
@@ -105,10 +103,7 @@ class Game : GameSession {
     fun die(target: GameObject, killer: GameObject? = null) {
         val death = Death(target, killer)
 
-        if ((target.isTagged(Tags.LIVING) || target.isTagged(Tags.MOBILE)) && target.corpseChance > 0.0) {
-            val corpse = createCorpse()
-            spawn(corpse, target.x, target.y)
-        }
+        // TODO: Spawnear cadáver si corresponde antes del despawn
 
         target.onDeath(death)
         despawn(target)
@@ -126,16 +121,7 @@ class Game : GameSession {
      * 5. Retornar true.
      */
     fun resurrect(): Boolean {
-        if (ability.timer < ability.cooldown) return false
-        ability.timer = 0.0
-
-        val corpses = objects.filter { it.isTagged(Tags.CORPSE) }
-        for (corpse in corpses) {
-            despawn(corpse)
-            val skeleton = createSkeleton()
-            spawn(skeleton, corpse.x, 0.0)
-        }
-
-        return true
+        // TODO: Implementar cooldown y resurrección masiva
+        return false
     }
 }
