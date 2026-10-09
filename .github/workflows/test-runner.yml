@@ -1,0 +1,30 @@
+name: Pruebas automatizadas (CI)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Ejecutar todas las pruebas unitarias
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Ejecutar pruebas Gradle
+        run: |
+          cd app
+          chmod +x ./gradlew
+          ./gradlew :shared:jvmTest --no-daemon

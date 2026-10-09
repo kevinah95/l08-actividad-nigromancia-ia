@@ -1,0 +1,44 @@
+name: Iniciar ejercicio
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  start_exercise:
+    name: Crear issue de ejercicio
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.head_commit.message, 'paso-')
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Crear label si no existe
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "ejercicio" --color "0075ca" --description "Issue del ejercicio guiado" 2>/dev/null || true
+
+      - name: Verificar si el issue ya existe
+        id: check_issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_COUNT=$(gh issue list --label "ejercicio" --state open --json number | jq length)
+          echo "issue_count=$ISSUE_COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Crear issue con el Paso 1
+        if: steps.check_issue.outputs.issue_count == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Práctica 08: Nigromancia y Comportamientos de IA — Ejercicio Paso a Paso" \
+            --label "ejercicio" \
+            --body "$(cat .github/steps/1-step.md)"

@@ -1,0 +1,21 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  test:
+    desc: "Ejecuta las pruebas unitarias para validar los pasos del ejercicio"
+    cmds:
+      - ./gradlew :shared:jvmTest
+
+  desktop:
+    desc: "Ejecuta la demo interactiva en Desktop (JVM)"
+    cmds:
+      - ./gradlew :desktopApp:run
+
+  build:
+    desc: "Compila el proyecto completo"
+    cmds:
+      - ./gradlew build

@@ -1,0 +1,50 @@
+name: Paso 2 — Choque de Tropas y Ataque
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/shared/src/commonMain/kotlin/io/github/kevinah95/l08_activity/behaviours/Behaviours.kt'
+
+jobs:
+  check_step_2:
+    name: Verificar Paso 2
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Ejecutar pruebas unitarias de Paso 2
+        id: check
+        run: |
+          cd app
+          chmod +x ./gradlew
+          if ./gradlew :shared:jvmTest --tests "*Step2AttackDamageTest*" --no-daemon; then
+            echo "result=success" >> "$GITHUB_OUTPUT"
+          else
+            echo "⏭️ Paso 2 aún no completado o pruebas fallidas."
+          fi
+
+      - name: Publicar Paso 3 en el issue
+        if: steps.check.outputs.result == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUMBER=$(gh issue list --label "ejercicio" --state open --json number --jq '.[0].number')
+          if [ -z "$ISSUE_NUMBER" ]; then
+            echo "⏭️ No hay issue de ejercicio abierto — omitiendo comentario."
+            exit 0
+          fi
+          gh issue comment "$ISSUE_NUMBER" \
+            --body "$(cat .github/steps/3-step.md)"
