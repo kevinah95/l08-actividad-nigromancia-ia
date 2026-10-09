@@ -21,7 +21,7 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "io.github.kevinah95.delete_l06.MainKt"
+        mainClass = "io.github.kevinah95.l08_activity.MainKt"
 
         val korGeJvmArgs = listOf(
             "--add-opens=java.desktop/sun.java2d.opengl=ALL-UNNAMED",
@@ -38,7 +38,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "io.github.kevinah95.delete_l06"
+            packageName = "io.github.kevinah95.l08_activity"
             packageVersion = "1.0.0"
         }
     }
