@@ -43,7 +43,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          WELCOME_CONTENT=$(cat .github/step-feedback/welcome.md)
+          STEP1_CONTENT=$(cat .github/steps/1-step.md)
           gh issue create \
             --title "Práctica 08: Nigromancia y Comportamientos de IA — Ejercicio Paso a Paso" \
             --label "ejercicio,paso-1" \
-            --body "$(cat .github/steps/1-step.md)"
+            --body "$WELCOME_CONTENT"$'\n\n'"$STEP1_CONTENT"

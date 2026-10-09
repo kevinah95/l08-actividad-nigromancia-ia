@@ -1,12 +1,13 @@
-name: Paso 3 — Ciclo de Muerte y Cadáveres
+name: Paso 3 — Muerte y Cadaveres
 
 on:
   push:
     branches:
       - main
     paths:
+      - 'app/shared/src/commonMain/kotlin/io/github/kevinah95/l08_activity/behaviours/Behaviours.kt'
       - 'app/shared/src/commonMain/kotlin/io/github/kevinah95/l08_activity/entities/Entities.kt'
-      - 'app/shared/src/commonMain/kotlin/io/github/kevinah95/l08_activity/core/Game.kt'
+      - '.github/workflows/3-step.yml'
 
 jobs:
   check_step_3:
@@ -20,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Comprobar si el issue está en el Paso 3
+      - name: Comprobar si el issue esta en el Paso 3
         id: gate
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -33,7 +34,7 @@ jobs:
           fi
 
           if ! gh issue view "$ISSUE_NUMBER" --json labels --jq '.labels[].name' | grep -q "^paso-3$"; then
-            echo "⏭️ El issue no tiene la etiqueta 'paso-3'. Este paso no está activo."
+            echo "⏭️ El issue no tiene la etiqueta 'paso-3'. Este paso no esta activo."
             echo "active=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -57,10 +58,18 @@ jobs:
           if ./gradlew :shared:jvmTest --tests "*Step3CorpseDropTest*" --no-daemon; then
             echo "passed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "❌ Las pruebas del Paso 3 aún no pasan."
             echo "passed=false" >> "$GITHUB_OUTPUT"
-            exit 1
           fi
+
+      - name: Publicar retroalimentacion si las pruebas fallaron
+        if: steps.gate.outputs.active == 'true' && steps.test.outputs.passed == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUMBER="${{ steps.gate.outputs.issue_number }}"
+          FEEDBACK_BODY=$(cat .github/step-feedback/step-3-mistake.md)
+          gh issue comment "$ISSUE_NUMBER" --body "$FEEDBACK_BODY"
+          exit 1
 
       - name: Transicionar a Paso 4 en el issue
         if: steps.gate.outputs.active == 'true' && steps.test.outputs.passed == 'true'
@@ -69,5 +78,6 @@ jobs:
         run: |
           ISSUE_NUMBER="${{ steps.gate.outputs.issue_number }}"
           gh issue edit "$ISSUE_NUMBER" --remove-label "paso-3" --add-label "paso-4"
-          gh issue comment "$ISSUE_NUMBER" \
-            --body "$(cat .github/steps/4-step.md)"
+          HEADER=$(cat .github/step-feedback/step-3-success.md)
+          BODY=$(cat .github/steps/4-step.md)
+          gh issue comment "$ISSUE_NUMBER" --body "$HEADER"$'\n\n'"$BODY"
