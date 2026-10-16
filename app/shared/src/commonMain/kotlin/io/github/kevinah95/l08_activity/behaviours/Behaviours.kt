@@ -29,9 +29,11 @@ class March(gameObject: GameObject, var step: Double) : Behaviour(gameObject) {
  * Al chocar con un objetivo hostil, ambas unidades se infligen daño mutuo equivalente a su salud restante.
  *
  * TODO Paso 2.1:
- * - En `onCollision(target)`, obtiene la sesión de juego: val session = gameObject.gameSession as? Game ?: return
- * - Inflige daño al objetivo igual a la vida del atacante: `session.damage(target, gameObject.hp, gameObject)`.
- * - Inflige daño al atacante igual a la vida del objetivo: `session.damage(gameObject, target.hp, target)`.
+ * - En `onCollision(target)`, guarda el daño mutuo antes de modificar la vida:
+ *   `val dealDamage = gameObject.hp` y `val takeDamage = target.hp`.
+ * - Obtiene la sesión de juego: `val session = gameObject.gameSession as? Game ?: return`.
+ * - Inflige daño al objetivo: `session.damage(target, dealDamage, gameObject)`.
+ * - Inflige daño al atacante: `session.damage(gameObject, takeDamage, target)`.
  */
 class Attack(gameObject: GameObject) : Behaviour(gameObject) {
     override fun onCollision(target: GameObject) {
