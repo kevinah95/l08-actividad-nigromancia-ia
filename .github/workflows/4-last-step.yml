@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'app/shared/src/commonMain/kotlin/io/github/kevinah95/l08_activity/entities/Entities.kt'
+      - 'app/shared/src/commonMain/kotlin/io/github/kevinah95/l08_activity/core/Game.kt'
       - '.github/workflows/4-last-step.yml'
 
 jobs:

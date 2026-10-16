@@ -7,6 +7,7 @@ on:
     paths:
       - 'app/shared/src/commonMain/kotlin/io/github/kevinah95/l08_activity/behaviours/Behaviours.kt'
       - 'app/shared/src/commonMain/kotlin/io/github/kevinah95/l08_activity/entities/Entities.kt'
+      - 'app/shared/src/commonMain/kotlin/io/github/kevinah95/l08_activity/core/Game.kt'
       - '.github/workflows/3-step.yml'
 
 jobs:
